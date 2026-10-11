@@ -4,23 +4,38 @@
 
 TraceReason connects technical decisions, components, dependencies, bugs, fixes, reasons, and evidence. Ask a debugging question, inspect the retrieved records, follow the supporting graph connections, and verify a clearly labelled hypothesis.
 
+## What you can do
+
+- Record decisions, reasons, components, dependencies, bugs, fixes, and evidence.
+- Connect records and explore their relationships in an interactive graph.
+- Ask a debugging question and inspect evidence-linked facts, hypotheses, and suggested checks.
+- Keep authenticated project memory in Neo4j, or explore a separate synthetic local demo.
+
+## Documentation
+
+Start with the [documentation index](docs/README.md).
+
+| Guide | Contents |
+| --- | --- |
+| [How Neo4j is used](docs/neo4j.md) | Graph model, constraints, transactions, ownership checks, parameterized Cypher, and persistence |
+| [Setup](docs/setup.md) | Local demo and Firebase, Neo4j Aura, and Gemini configuration |
+| [Architecture](docs/architecture.md) | Request flow, bounded retrieval, answer validation, and source map |
+| [API reference](docs/api.md) | Routes, request examples, responses, and errors |
+| [Demo walkthrough](docs/demo.md) | Authentication-change investigation and graph interactions |
+| [Testing and troubleshooting](docs/testing.md) | Checks, service failures, and implementation limits |
+
 ## Run locally
 
 Requires Node.js 20.9 or newer (verified here with Node.js 24).
 
 ```powershell
-npm install
-# If .env.local does not exist yet:
-Copy-Item .env.example .env.local
-# Fill in local configuration without committing it.
-npm run db:check
-npm run db:setup
+npm ci
 npm run dev
 ```
 
 Open [TraceReason locally](http://localhost:3000). Choose **Explore demo** to use the complete synthetic scenario without an account. The local demo works without external credentials, stores records in this browser, and uses a deterministic explanation. It never calls Gemini or writes to Neo4j. Storage failure is displayed; production service failure never switches into demo mode.
 
-The credentials supplied with this workspace have already been mapped into the ignored `.env.local`. Do not overwrite that file when adding Firebase and Gemini configuration. The original `.txt` credentials file, local environment files, generated build output, and test screenshots are ignored by Git. No secrets belong in source, logs, evidence, or AI prompts.
+For authenticated storage and live explanations, follow [setup and configuration](docs/setup.md), create `.env.local` from `.env.example` if it does not already exist, then run `npm run db:check` and `npm run db:setup`. Do not overwrite an existing environment file. Local credential files, environment files, generated build output, and test screenshots are ignored by Git. No secrets belong in source, logs, evidence, or AI prompts.
 
 ## Configuration
 
@@ -35,12 +50,12 @@ All variables are listed in `.env.example`. Restart the app after changing envir
 
 Enable **Google** and **Email/Password** in Firebase Authentication, and add the local hostname to authorized domains. Firebase handles registration, sign-in, password reset, and sign-out. Keep Firebase Admin credentials, Neo4j credentials, and the Gemini key exclusively on the server. Never place them in `NEXT_PUBLIC_*` variables.
 
-Settings reports whether configuration is present, not whether a service is healthy. Missing Admin or Gemini configuration produces an actionable error. Firebase web configuration and a Gemini key were supplied locally. Gemini returned a verified live structured explanation. Firebase Admin credentials are configured and accepted by Google. The live Firebase Authentication access check passed. The authenticated project retrieval and Gemini question flow is also verified in the browser. Registration, password reset, and individual sign-in providers remain unverified.
+Settings reports whether configuration is present, not whether a service is healthy. Missing Admin or Gemini configuration produces an actionable error. See [VERIFICATION.md](VERIFICATION.md) for completed live checks and flows that remain unverified.
 
 ## Demo walkthrough
 
 1. Select **Explore demo** on the welcome screen. The synthetic **Orbit API** project opens in Graph.
-2. Select a decision node. **Decision Memory** shows its reason, alternatives, and revisit conditions. Evidence records contain explicitly fictional excerpts with no fabricated commit URLs.
+2. Double-click a decision node, press Enter on a focused node, or use **Open selected record**. A single click selects the node; dragging moves it without opening the drawer. **Decision Memory** shows its reason, alternatives, and revisit conditions. Evidence records contain explicitly fictional excerpts with no fabricated commit URLs.
 3. Open **Debug assistant** and select **Trace the connection** with the prefilled question: “Why did we change the authentication module, and could that change be related to the current API error?”
 4. Read the documented facts, possible connection, checks, and uncertainty in the contextual panel. The graph highlights supporting connections; use **Pause path animation** to stop it. Reduced-motion preferences disable animation.
 5. Select **Validation checklist** in the answer to open its evidence record. The prior login smoke test passed, but token refresh remains unverified. The next check is to compare requests and token claims before and after refresh without logging raw tokens.
@@ -107,7 +122,7 @@ npm run test:gemini
 
 Playwright starts or reuses a local dev server. It exercises the demo, record CRUD, relationships, reload persistence, evidence navigation, confirmations, reset, empty/error states, mobile drawers, and reduced motion. Axe checks accessibility. Screenshots are written under ignored `test-results/`.
 
-See `VERIFICATION.md` for the completed checks and known limitations.
+See [VERIFICATION.md](VERIFICATION.md) for completed checks and [testing and troubleshooting](docs/testing.md) for commands, service errors, and known limitations.
 
 ## Official integration references
 

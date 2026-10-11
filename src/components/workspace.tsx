@@ -343,6 +343,10 @@ export default function Workspace() {
     },
     [updateUrl],
   );
+  const selectGraphNode = useCallback(
+    (id: string) => updateUrl({ record: id }),
+    [updateUrl],
+  );
   function persist(next: Snapshot[]) {
     try {
       saveLocal(next);
@@ -931,7 +935,8 @@ export default function Workspace() {
                         data={data}
                         visibleIds={visible.map((r) => r.id)}
                         selectedId={selected?.id || ""}
-                        onSelect={select}
+                        onSelect={selectGraphNode}
+                        onOpen={select}
                         highlightedEdges={edgesHighlighted}
                         animatePaths={pathPlaying}
                       />
@@ -949,7 +954,15 @@ export default function Workspace() {
                       </div>
                     )}
                     <div className="graph-footer">
-                      <span>Select a record to see its story.</span>
+                      <span>Double-click a record or press Enter to see its story.</span>
+                      {selected && (
+                        <button
+                          className="text-button"
+                          onClick={() => select(selected.id)}
+                        >
+                          Open selected record
+                        </button>
+                      )}
                       {result ? (
                         <button
                           className="text-button"
@@ -1209,7 +1222,8 @@ export default function Workspace() {
                         data={data}
                         visibleIds={result.context.records.map((r) => r.id)}
                         selectedId={selected?.id || ""}
-                        onSelect={select}
+                        onSelect={selectGraphNode}
+                        onOpen={select}
                         highlightedEdges={edgesHighlighted}
                         animatePaths={pathPlaying}
                       />

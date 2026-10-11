@@ -36,3 +36,10 @@ The configured Gemini 3.8 model returned HTTP 503 during a minimal generation he
 All 20 unit/security/provider tests, four desktop/mobile browser workflows, TypeScript, lint, and the production build passed after these changes. Live provider verification returned three facts and nine valid graph references using synthetic context.
 
 Authenticated browser verification also passed on the annotated Orbit API project. Clicking Retry explanation produced the live GEMINI · RETRIEVED PROJECT CONTEXT answer, with cited facts, evidence, checks, and uncertainty. The Google GenAI SDK is externalized through next.config.ts so its Node transport dependencies load natively instead of through Turbopack. No credentials or provider response bodies were logged.
+
+### Graph click and drag annotations
+
+- Single-click selects a graph record; double-click opens its details. Enter and Space open details from a focused node, and the Open selected record button provides a tap alternative.
+- Drag selection no longer opens the contextual drawer or interrupts node movement. Double-click does not zoom the graph.
+- Verified the 602×572 compact viewport with frame checks during dragging, position changes, no unexpected backdrop, double-click opening, keyboard opening, and the explicit open button.
+- Type checking, lint, production build, all 20 unit tests, and all 5 browser workflows passed.

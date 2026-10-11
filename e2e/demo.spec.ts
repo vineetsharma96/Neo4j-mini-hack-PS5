@@ -10,7 +10,7 @@ test("compact record drawer keeps the graph visible behind it", async ({
       "Decision: Change authentication token handling. Press Enter to view record.",
       { exact: true },
     )
-    .click();
+    .dblclick();
   await expect(
     page.getByRole("dialog", { name: "Contextual panel" }),
   ).toBeVisible();
@@ -52,7 +52,7 @@ test("graph selection stays on the clicked record across panel updates", async (
       `${kind}: ${title}. Press Enter to view record.`,
       { exact: true },
     );
-    await node.click();
+    await node.dblclick();
     await expect(
       page.getByRole("heading", { name: title, exact: true }),
     ).toBeVisible();
@@ -248,7 +248,7 @@ test("mobile layout, navigation, keyboard drawer and reduced motion", async ({
     .getByLabel("Component: Authentication. Press Enter to view record.", {
       exact: true,
     })
-    .click();
+    .dblclick();
   await expect(
     page.getByRole("heading", { name: "Authentication", exact: true }),
   ).toBeVisible();
@@ -272,4 +272,43 @@ test("mobile layout, navigation, keyboard drawer and reduced motion", async ({
     path: "test-results/answer-mobile.png",
     fullPage: true,
   });
+});
+
+test("compact graph separates selection, dragging and opening details", async ({ page }) => {
+  await page.setViewportSize({ width: 602, height: 572 });
+  await page.goto("/app?mode=demo");
+  const node = page.getByLabel("Decision: Change authentication token handling. Press Enter to view record.", { exact: true });
+  await node.click();
+  await expect(node).toHaveClass(/selected/);
+  await expect(page.getByRole("dialog", { name: "Contextual panel" })).toHaveCount(0);
+  await page.evaluate(() => {
+    const state = { frames: 0, disrupted: false };
+    (window as unknown as { dragCheck: typeof state }).dragCheck = state;
+    const sample = () => {
+      const main = document.querySelector("#main");
+      const graph = document.querySelector(".react-flow__viewport");
+      state.frames++;
+      if (!main || !graph || getComputedStyle(main).visibility !== "visible" || document.querySelector(".context-backdrop")) state.disrupted = true;
+      if (state.frames < 180) requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  });
+  const before = await node.getAttribute("style");
+  const box = await node.boundingBox();
+  expect(box).not.toBeNull();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box!.x + box!.width / 2 + 65, box!.y + box!.height / 2 + 45, { steps: 25 });
+  await page.mouse.up();
+  await expect(node).not.toHaveAttribute("style", before!);
+  await expect(page.getByRole("dialog", { name: "Contextual panel" })).toHaveCount(0);
+  expect(await page.evaluate(() => (window as unknown as { dragCheck: { disrupted: boolean } }).dragCheck.disrupted)).toBe(false);
+  await node.dblclick();
+  await expect(page.getByRole("dialog", { name: "Contextual panel" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await node.press("Enter");
+  await expect(page.getByRole("dialog", { name: "Contextual panel" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Open selected record", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Contextual panel" })).toBeVisible();
 });

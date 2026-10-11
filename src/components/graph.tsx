@@ -74,6 +74,7 @@ export default function Graph({
   visibleIds,
   selectedId,
   onSelect,
+  onOpen,
   highlightedEdges,
   animatePaths = true,
 }: {
@@ -81,6 +82,7 @@ export default function Graph({
   visibleIds: string[];
   selectedId: string;
   onSelect: (id: string) => void;
+  onOpen: (id: string) => void;
   highlightedEdges: string[];
   animatePaths?: boolean;
 }) {
@@ -163,6 +165,15 @@ export default function Graph({
       className="graph-canvas"
       role="region"
       aria-label="Interactive project memory graph"
+      onKeyDownCapture={(event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const node = (event.target as HTMLElement).closest(".react-flow__node");
+        const id = node?.getAttribute("data-id");
+        if (!id) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onOpen(id);
+      }}
     >
       <ReactFlow
         nodes={nodes}
@@ -177,11 +188,12 @@ export default function Graph({
                 [change.id]: position,
               }));
             }
-            if (change.type === "select" && change.selected)
-              onSelect(change.id);
           }
         }}
         onNodeClick={(_, n) => onSelect(n.id)}
+        onNodeDoubleClick={(_, n) => onOpen(n.id)}
+        selectNodesOnDrag={false}
+        zoomOnDoubleClick={false}
         onNodeDragStop={(_, n) =>
           setOffsets((prev) => ({ ...prev, [n.id]: n.position }))
         }
