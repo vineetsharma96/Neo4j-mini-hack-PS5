@@ -1,0 +1,18 @@
+node_modules/
+.next/
+.env*
+!.env.example
+*.txt
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Local Firebase Admin credentials
+*service-account*.json
+*firebase-adminsdk*.json
+
+neo4j-a0fd6-firebase-adminsdk-fbsvc-49502b099f.json
+
+# Local browser verification artifacts
+.playwright-mcp/
